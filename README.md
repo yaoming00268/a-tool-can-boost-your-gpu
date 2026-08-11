@@ -59,4 +59,3 @@ NVIDIA 官方驱动对频率修改指令有硬性安全限制，必须在 Window
 问题三：开启锁频后系统提示 pynvml Warning 警告解答：
 请在终端执行 pip uninstall pynvml -y 和 pip install nvidia-ml-py，使用 NVIDIA 官方维护的最新 PyPI 绑定包即可消除警告，或者可以不管。
 
-开源许可证本项目基于 MIT License 协议开源。
