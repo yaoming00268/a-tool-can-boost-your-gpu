@@ -1,61 +1,99 @@
-NVIDIA 显卡多程序多配置频率锁定与管理工具一款专为 Windows 环境下的 NVIDIA 显卡设计的自动化程序锁频与多配置管理工具。通过后台监控当前运行的程序或前台焦点窗口，自动将 NVIDIA GPU 核心频率限制或锁定在设定区间，并可无缝联动微星小飞机（MSI Afterburner）应用超频预设。
+# Nanako App Manager（NVIDIA 显卡高频锁频工具 / GPUBooster）
 
-（完全不懂怎么使用微星小飞机的请看视频）【我要看游戏帧数！Afterburner下载/安装/汉化/设置/使用教程】 https://www.bilibili.com/video/BV1nkcszRE8q/?share_source=copy_web&vd_source=4a37f9b82b3c518380a90a293ba23361
+一款面向 Windows 的 **GPU 频率管理 + 软件调度中心**：后台监控当前运行/前台聚焦的程序，自动将 NVIDIA 显卡核心频率**锁定或限制**到预设区间，并联动微星小飞机（MSI Afterburner）应用超频预设；同时提供软件库管理、分类分组、排队调度、使用统计、电源计划自动切换与可扩展插件体系，内置毛玻璃拟态风格的 WebView2 图形界面。
 
-不推荐电子硬件小白随便使用，如果显卡变成砖不要谴责他人。如果出现low帧多可以尝试解开bios降cpuacline（有教程不要自己随便尝试）
+- **中文说明**：本文件（README.md）
+- **English**: [README.en.md](README.en.md)
+- 下载安装包/便携版：见本仓库 Releases 页
 
-核心特性进程级自动化锁频支持前台获焦窗口精准检测与系统后台全量进程检测两种模式。
+## 功能特性
 
-支持定频模式与区间频段模式，可将 GPU 锁定于固定核心频率或限制在安全区间。提供 Windows 控制面板及已安装应用程序一键导入规则功能，但是如果是外部可执行文件还是自己导入。
+### GPU 频率管理
+- **进程级自动化锁频**：支持“前台焦点窗口精准识别”与“系统全部进程识别”两种监控模式（全局模式开关）。
+- **定频 / 频段两种策略**：可将 GPU 核心频率锁定在固定值，或限制在安全的最高/最低区间内。
+- **平滑调频缓冲**：频率调整按阶梯平滑过渡（步长/延时可调），避免瞬时跳频。
+- **硬件安全保护**：基于 NVIDIA 官方 `nvidia-ml-py`(NVML) 内存级接口探测显卡状态，失败自动回退 `nvidia-smi` 双通道扫描；下发锁频指令前自动查询硬件允许的最高 Boost 频率并截断超限数值。
+- **微星小飞机深度联动**：每条规则可绑定 Afterburner 配置方案，一键唤起并打开 V-F 频率电压曲线编辑器（降压超频入口）。
+- **电源计划联动**：按应用自动切换 Windows 电源计划，退出后恢复默认。
+- **全局热键**：默认 `F12` 一键启停监控（可配置）。
 
-微星小飞机深度联动支持规则与微星小飞机配置方案绑定，通过命令行与快捷键双重校验自动应用。提供一键唤醒微星小飞机并自动触发 V-F 频率电压曲线编辑器功能，可以直接这样降压超频。
+### 软件管理
+- 软件库：手动添加 / 一键抓取前台窗口 / 扫描已安装程序（含控制面板应用）/ 批量导入外部可执行文件。
+- 分类与分组：自定义分类、按组统一下发策略（跟随组配置），支持批量改类、批量删除。
+- 排队器模式与焦点模式双调度；统计每个应用的使用时长（今日/本周/累计）、启动次数、最近运行时间，自动标记“未使用”便于清理。
+- 全局搜索、在线搜索（Bing / B 站等，可自定义搜索 URL，支持代理）。
 
-硬件安全与熔断保护采用 NVIDIA 官方 nvidia-ml-py 接口读取硬件状态，查询开销小于一毫秒。下发锁频指令前自动查询显卡硬件允许的最大 Boost 频率，超频数值过高时自动截断，从源头杜绝系统蓝屏，但是还是会蓝屏那就是超频太过了。
+### 界面与数据
+- 毛玻璃拟态 UI：自定义壁纸（图片或 Base64）、透明度、模糊度、主题强调色/文本色、侧栏折叠。
+- 设置/软件库数据导出与导入（JSON 备份）。
+- 插件体系：`plugins` 目录下的 `.py` 插件启动时自动发现加载（监控、设置、统计、代理、网页搜索、MSI 等），安装目录内可直接扩展。
+- 应用自保护进程守卫、管理员权限自动提权（UAC）、可选开机自启。
 
-系统集成与便捷工具基于 Win32 API 提供全局启停监控热键。提供快捷发送组合键功能，可一键调出 Windows 任务管理器。支持配置 JSON 持久化存储与跟随 Windows 注册表开机自启。
+## 运行环境
 
-环境要求与依赖安装运行环境操作系统要求为 Windows 10 或 Windows 11 六十四位版本。
+| 项目 | 要求 |
+| --- | --- |
+| 操作系统 | Windows 10 / 11 64 位 |
+| 显卡（GPU 功能） | NVIDIA GeForce / RTX 系列，驱动需支持 `nvidia-smi` |
+| 运行时 | Microsoft Edge WebView2 Runtime（Win10/11 通常已内置） |
+| 管理员权限 | GPU 锁频指令受 NVIDIA 驱动限制，必须以管理员运行（程序会自动弹出 UAC 提权） |
+| 源码运行（可选） | Python 3.10+，`pip install nvidia-ml-py psutil pillow pywebview pythonnet` |
 
-以下是在编译软件执行或者终端你运行代码的要求（不推荐，因为麻烦）
+> 说明：软件管理/统计等基础功能不依赖 NVIDIA 显卡；锁频类功能仅对 NVIDIA 有效，A 卡暂无适配。
 
-显卡要求为 NVIDIA GeForce 或 RTX 系列显卡，显卡驱动需支持 nvidia-smi 工具，a卡暂时没有测试条件，Python 版本要求为 Python 3.10 及以上。
+## 安装与使用
 
-执行依赖安装命令：pip install nvidia-ml-py psutil pillow
+1. 在 Releases 下载 `GPUBooster_Setup_v*.exe`（安装版）或便携版压缩包。
+2. 安装版按向导安装（需管理员确认）；便携版解压后运行 `GPUBooster_Main.exe`。
+3. 首次使用流程：
+   - 在“软件库”中扫描已安装程序或添加目标程序；
+   - 为目标程序设置 GPU 模式（定频/频段）、频率上下限、电源计划、MSI 配置方案；
+   - 点击“开启监控”或按全局热键 `F12`：目标程序运行/获得焦点时自动套用频率策略，退出后自动恢复默认。
 
-若之前安装过第三方 pynvml 包导致提示 Warning 警告，请先执行卸载命令：pip uninstall pynvml -y
+## 从源码构建
 
-快速使用指南
+```powershell
+# 1. 创建虚拟环境并安装依赖
+py -3.11 -m venv .venv
+.\.venv\Scripts\python -m pip install pyinstaller pywebview pythonnet clr_loader psutil pillow nvidia-ml-py pywin32-ctypes
 
-第一步：启动程序修改显卡核心频率依赖 Windows 管理员权限，推荐右键以管理员身份运行。（若以普通权限启动，软件会自动弹出 UAC 提权申请。）
+# 2. 直接运行（开发）
+.\.venv\Scripts\python main.py
 
-第二步：添加锁频规则在配置管理区域选择或新建配置预设。
+# 3. 普通打包：PyInstaller 生成便携目录 dist\GPUBoosterAppSuite
+.\.venv\Scripts\pyinstaller --noconfirm --clean app_build.spec
+#    构建后需将 web / plugins / msi_service / readme.txt 复制到 exe 旁（插件热插拔依赖）
 
-输入或通过搜索框自动载入目标程序名称。
+# 4. Inno Setup 打包：生成 installer_output\GPUBooster_Setup_v1.1.exe
+& 'G:\Inno Setup 6\ISCC.exe' setup_script.iss
+```
 
-选择定频模式或频段模式，并设置目标频率数值。
+## 目录结构
 
-在微星小飞机配置下拉框中选择联动方案。
+```
+main.py                 入口（pywebview 窗口 + 提权 + 热键 + 监控装配）
+api_bridge.py           前后端统一网关 API（pywebview js_api）
+app_build.spec          PyInstaller 打包配置
+setup_script.iss        Inno Setup 安装包脚本
+app_icon.ico            程序 / 安装包图标
+core/                   GPU 服务、电源计划、监控调度、数据管理、进程守卫等
+plugins/                插件体系（自动发现加载，可扩展）
+msi_service/            MSI Afterburner 交互（注册表/路径扫描、曲线编辑器唤起）
+web/                    WebView2 前端（css/js/views，毛玻璃拟态 UI）
+software_library.json   本地软件库与设置数据（运行时生成/维护）
+```
 
-点击添加或更新规则保存设置。
+## 常见问题
 
-第三步：开启监控点击界面的启动自动提频监控按钮，或按下全局快捷键开启监控。
+- **提示未获得管理员权限？** NVIDIA 驱动对频率修改指令有硬性限制，必须以管理员身份运行；普通权限启动会自动弹出 UAC。
+- **提示 pynvml Warning？** 请卸载旧的三方 `pynvml` 包并安装官方维护的 `nvidia-ml-py`：`pip uninstall pynvml -y` 后 `pip install nvidia-ml-py`。
+- **微星小飞机未安装/未运行？** 程序会自动扫描注册表与常见安装路径；规则若未绑定配置方案则不会向 Afterburner 发送命令。
+- **没有 NVIDIA 显卡或 nvidia-smi 不可用？** GPU 锁频功能不可用，其余软件管理功能不受影响。
 
-检测到目标程序运行或获得焦点时显卡会自动锁频，目标程序退出后显卡自动恢复默认调频策略。
+## 风险提示
 
-安全机制说明：
+超频、降压、锁频属于硬件改动行为，可能导致系统不稳定、蓝屏甚至硬件损坏。本工具内置硬件极限探测与超限截断保护，**但请务必在理解风险的前提下使用，后果自负**。建议先用小幅度频率验证稳定性，再逐步调整。
 
-潜在风险常见表现本项目应对方案高频调用命令行系统卡顿与 GPU 唤醒卡死采用 nvidia-ml-py 内存级接口，查询耗时低于一毫秒误输入超高频率显卡失速死机或系统蓝屏（调高了一样容易蓝）
+## License
 
-内置自动查询显卡 Boost 物理极限并强制截断熔断
-
-高负载查询电压触发驱动 TDR 崩溃严格禁用高危总线查询命令锁频状态直接关闭显卡持续卡在高频高发热窗口关闭事件强制自动复位频率常见问题排查：
-
-问题一：开启监控时提示未获得管理员权限解答：
-NVIDIA 官方驱动对频率修改指令有硬性安全限制，必须在 Windows 管理员权限下执行。请右键选择以管理员身份运行 Python 或脚本。
-
-问题二：微星小飞机显示未安装或未运行解答：
-软件会自动扫描注册表与常见安装路径。若预设关联选择默认配置，则不会向微星小飞机发送任何触发命令。（只要打开了基本都能用）
-
-问题三：开启锁频后系统提示 pynvml Warning 警告解答：
-请在终端执行 pip uninstall pynvml -y 和 pip install nvidia-ml-py，使用 NVIDIA 官方维护的最新 PyPI 绑定包即可消除警告，或者可以不管。
-
+本项目代码仅供学习交流，请勿用于商业用途。

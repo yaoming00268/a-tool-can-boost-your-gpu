@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Nanako App Manager - 软件性能与电源调优管理中心</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body onclick="App.handleGlobalClick(event)">
+
+  <!-- 0. 全局自定义背景壁纸层 -->
+  <!-- 0. 全局极光背景与自定义壁纸层 (提供毛玻璃通透反射底纹) -->
+  <div id="app-wallpaper-layer">
+    <div class="aurora-orb aurora-orb-1"></div>
+    <div class="aurora-orb aurora-orb-2"></div>
+    <div class="aurora-orb aurora-orb-3"></div>
+  </div>
+
+  <!-- 1. 侧边栏容器 (导航项由各视图插件自动挂载) -->
+  <div id="sidebar">
+    <div class="nav-group" id="sidebar-nav">
+      <div class="logo-title-text" id="sidebar-logo">NANAKO</div>
+    </div>
+    <div class="version-tag">v7.7 PRO</div>
+  </div>
+
+  <!-- 2. 主视口容器 -->
+  <div id="main-viewport">
+    <div id="top-bar">
+      <!-- 顶栏左侧: 返回键 + 边栏折叠键 + 状态胶囊群 (已移除黑色Nanako字样减少挤占) -->
+      <div class="top-left-group">
+        <button id="btn-rollback" class="top-nav-btn" title="返回上一级页面 (在主页点击可刷新)" onclick="App.goBack()">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </button>
+        <button id="btn-toggle-sidebar" class="top-nav-btn" title="收起 / 展开侧边导航栏" onclick="App.toggleSidebar()">
+          <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
+
+        <div class="status-capsule-group">
+          <span class="capsule-badge capsule-mode" id="top-mode-badge" title="当前调度模式: 点击前往设置修改" onclick="App.navTo('settings')">焦点模式</span>
+          <span class="capsule-badge capsule-admin" id="top-admin-badge" title="管理员权限状态 (点击可重新提权)" onclick="App.requestAdmin()">
+            <span class="dot-indicator"></span>
+            <span id="txt-admin-status">管理员已就绪</span>
+          </span>
+          <span class="capsule-badge capsule-monitor" id="top-monitor-badge" title="核心监控调度状态 (点击一键启停)" onclick="App.toggleMonitor()">
+            <span class="dot-indicator"></span>
+            <span id="txt-monitor-status">监控运行中</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- 顶栏中部: 高质感半透明胶囊搜索框 -->
+      <div class="search-pill">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="global-search" placeholder="搜索应用或进程..." oninput="App.onGlobalSearch()">
+      </div>
+
+      <!-- 顶栏右侧: 常用核心功能快捷操作组 (带防挤压与自适应保护) -->
+      <div class="top-actions" id="top-actions-bar">
+        <button class="action-btn" onclick="ModalsPlugin.captureForegroundDirect()" title="快速抓取前台活动窗口加入软件库">
+          <svg viewBox="0 0 24 24"><path d="M19 12h-2v3h-3v2h5v-5zM7 9h3V7H5v5h2V9zm14-6H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16.01H3V4.99h18v14.02z"/></svg>
+          <span>抓取前台</span>
+        </button>
+        <button class="action-btn" onclick="App.quickLaunchSelected()" title="启动选中的软件">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <span>启动软件</span>
+        </button>
+        <button class="action-btn" style="color:#EF4444;" onclick="App.quickTerminateSelected()" title="关闭选中的软件进程">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          <span>关闭软件</span>
+        </button>
+        <button class="action-btn" onclick="ModalsPlugin.openAddModal()" title="手动添加软件">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <span>添加软件</span>
+        </button>
+        <button class="action-btn" onclick="LibraryPlugin.toggleFilterDropdown(event)" title="分类筛选与排序方式">
+          <svg viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+          <span>筛选排序</span>
+        </button>
+        <button class="action-btn" onclick="App.toggleMultiSelectMode()" title="批量操作多选模式">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+          <span id="txt-multiselect">多选</span>
+        </button>
+        <button class="action-btn" onclick="App.toggleTheme()" title="切换亮暗色彩主题">
+          <svg viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 面包屑导航 -->
+    <div id="breadcrumb-bar" class="breadcrumb-nav"></div>
+
+    <!-- 插件页面视图挂载插槽 (Slot) -->
+    <div id="views-slot" style="flex:1; display:flex; flex-direction:column; overflow:hidden; position:relative;"></div>
+
+    <!-- 底部批量多选工具栏 -->
+    <div id="batch-bar">
+      <span id="batch-count-text" style="font-weight:600; font-size:13px;">已选择 0 项</span>
+      <button class="btn" onclick="LibraryPlugin.batchLaunch()">批量启动</button>
+      <button class="btn btn-danger" onclick="LibraryPlugin.batchKill()">批量关闭</button>
+      <button class="btn btn-outline" onclick="LibraryPlugin.promptBatchCategory()">移动分类</button>
+      <button class="btn btn-danger" onclick="LibraryPlugin.batchDelete()">批量删除</button>
+      <button class="btn btn-outline" onclick="App.toggleMultiSelectMode()">退出多选</button>
+    </div>
+  </div>
+
+  <!-- 插件全局弹窗/菜单插槽 (Slot) -->
+  <div id="modals-slot"></div>
+
+  <!-- 核心基础调度引擎 -->
+  <script src="js/app_core.js"></script>
+
+  <!-- 业务视图与扩展插件集 -->
+  <script src="views/home_plugin.js"></script>
+  <script src="views/library_plugin.js"></script>
+  <script src="views/queue_plugin.js"></script>
+  <script src="views/groups_plugin.js"></script>
+  <script src="views/detail_plugin.js"></script>
+  <script src="views/stats_plugin.js"></script>
+  <script src="views/settings_plugin.js"></script>
+  <script src="views/modals_plugin.js"></script>
+</body>
+</html>

@@ -21,17 +21,8 @@ class MSIAfterburnerService:
                 return profile
         return None
 
-    def get_profile_by_id(self, profile_id: int) -> dict | None:
-        for profile in self.profiles:
-            if profile['id'] == profile_id:
-                return profile
-        return None
-
     def is_installed(self) -> bool:
         return self.install_path is not None
-
-    def get_install_path(self) -> str | None:
-        return self.install_path
 
     def is_running(self) -> bool:
         return MSIInteractor.is_running()
@@ -44,15 +35,3 @@ class MSIAfterburnerService:
 
     def apply_profile(self, profile_id: int | str) -> tuple[bool, str]:
         return MSIInteractor.apply_profile(self.install_path, profile_id)
-
-    def get_profile_summary(self, profile: dict | None) -> str:
-        return MSIConfigParser.get_profile_summary(profile)
-
-    def get_status_message(self) -> str:
-        if self.is_installed():
-            if self.is_running():
-                return f"微星小飞机已就绪 [{self.get_install_path()}]"
-            else:
-                return f"微星小飞机已安装但未运行 [{self.get_install_path()}]"
-        else:
-            return "未检测到微星小飞机安装，MSI配置功能不可用"
